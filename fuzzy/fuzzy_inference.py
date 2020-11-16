@@ -37,12 +37,12 @@ class FuzzySet(FuzzyObject):
         return f'{self.domain} is {self.degree}'
 
 class FuzzyRule:
-    def __init__(self, antecedent: FuzzyObject, consecuence: FuzzySet):
+    def __init__(self, antecedent: FuzzyObject, consequence: FuzzySet):
         self.antecedent = antecedent
-        self.consecuence = consecuence
+        self.consequence = consequence
 
     def __str__(self):
-        return f'{self.antecedent} => {self.consecuence}'
+        return f'{self.antecedent} => {self.consequence}'
 
 class FuzzySystem:
     def __init__(self, *variables):
@@ -54,10 +54,10 @@ class FuzzySystem:
             var.fuzzy_system = self
         self.output_variable.fuzzy_system = self
 
-    def add_rule(self, antecedent: FuzzyObject, consecuence: FuzzySet):
-        if consecuence.domain != self.output_variable.name:
-            raise ValueError(f'Variable <{consecuence.domain}> is not an output varaible')
-        self.rules.append(FuzzyRule(antecedent, consecuence))
+    def add_rule(self, antecedent: FuzzyObject, consequence: FuzzySet):
+        if consequence.domain != self.output_variable.name:
+            raise ValueError(f'Variable <{consequence.domain}> is not an output varaible')
+        self.rules.append(FuzzyRule(antecedent, consequence))
 
     def __str__(self):
         return f'Input:\n' + '\n'.join(f'  {var}' for var in self.input_variables) +\
