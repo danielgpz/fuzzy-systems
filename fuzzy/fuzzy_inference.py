@@ -2,21 +2,6 @@ from .fuzzy_logic import FuzzyPredicate
 from .fuzzy_number import FuzzyMinWith, FuzzyProductWith, FuzzyMax
 from matplotlib import pyplot
 
-class LinguisticVariable:
-    def __init__(self, name: str, **categories):
-        self.name = name
-        self.fuzzy_system = None
-        self.categories = categories
-
-    def __getattr__(self, category: str):
-        return FuzzySet(self.name, category, self.categories[category], fuzzy_system=self.fuzzy_system)
-
-    def __eq__(self, other):
-        return self.name == other.name
-
-    def __str__(self):
-        return f'<{self.name}>: ' + ', '.join(c for c in self.categories)
-
 class FuzzySet(FuzzyPredicate):
     def __init__(self, domain: str, degree: str, member_function, fuzzy_system=None):
         self.domain = domain
@@ -38,17 +23,32 @@ class FuzzySet(FuzzyPredicate):
     def __str__(self):
         return f'{self.domain} is {self.degree}'
 
-    def plot(self, interval=(0, 1)):
+    def plot(self, interval=(0, 1), points=1000):
         a, b = interval
-        step = (b - a)/1000
+        step = (b - a)/points
         pyplot.figure()
-        xs = [a + x * step for x in range(1001)]
+        xs = [a + x * step for x in range(points + 1)]
         ys = [self.member_function(x) for x in xs]
         pyplot.xlabel(self.domain)
         pyplot.ylabel(self.degree)
         pyplot.axis([a, b, 0, 1])
         pyplot.plot(xs, ys)
         pyplot.show()
+
+class LinguisticVariable:
+    def __init__(self, name: str, **categories):
+        self.name = name
+        self.fuzzy_system = None
+        self.categories = categories
+
+    def __getattr__(self, category: str):
+        return FuzzySet(self.name, category, self.categories[category], fuzzy_system=self.fuzzy_system)
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __str__(self):
+        return f'<{self.name}>: ' + ', '.join(c for c in self.categories)
 
 class FuzzyRule:
     def __init__(self, antecedent: FuzzyPredicate, consequence: FuzzySet):

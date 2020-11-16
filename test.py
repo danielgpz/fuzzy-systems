@@ -18,7 +18,7 @@ propina.poca     <<= servicio.pobre | comida.rancia
 propina.promedio <<= servicio.bueno & ~ comida.rancia 
 propina.generosa <<= servicio.excelente | comida.deliciosa
 
+print(SistemaPropina)
+
 SistemaPropina.mamdani(3, 8).plot((-1, 11))
 SistemaPropina.larsen(3, 8).plot((-1, 11))
-
-print(SistemaPropina)
