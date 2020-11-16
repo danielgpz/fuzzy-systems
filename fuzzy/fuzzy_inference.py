@@ -1,4 +1,6 @@
-from .fuzzy_logic import FuzzyObject
+from .fuzzy_logic import FuzzyPredicate
+from .fuzzy_number import FuzzyMinWith, FuzzyProductWith, FuzzyMax
+from matplotlib import pyplot
 
 class LinguisticVariable:
     def __init__(self, name: str, **categories):
@@ -15,7 +17,7 @@ class LinguisticVariable:
     def __str__(self):
         return f'<{self.name}>: ' + ', '.join(c for c in self.categories)
 
-class FuzzySet(FuzzyObject):
+class FuzzySet(FuzzyPredicate):
     def __init__(self, domain: str, degree: str, member_function, fuzzy_system=None):
         self.domain = domain
         self.degree = degree
@@ -25,7 +27,7 @@ class FuzzySet(FuzzyObject):
     def __call__(self, *args, **values):
         return self.member_function(values[self.domain])
 
-    def __ilshift__(self, other: FuzzyObject):
+    def __ilshift__(self, other: FuzzyPredicate):
         try:
             fuzzy_system = self.fuzzy_system
             fuzzy_system.add_rule(other, self)
@@ -36,8 +38,20 @@ class FuzzySet(FuzzyObject):
     def __str__(self):
         return f'{self.domain} is {self.degree}'
 
+    def plot(self, interval=(0, 1)):
+        a, b = interval
+        step = (b - a)/1000
+        pyplot.figure()
+        xs = [a + x * step for x in range(1001)]
+        ys = [self.member_function(x) for x in xs]
+        pyplot.xlabel(self.domain)
+        pyplot.ylabel(self.degree)
+        pyplot.axis([a, b, 0, 1])
+        pyplot.plot(xs, ys)
+        pyplot.show()
+
 class FuzzyRule:
-    def __init__(self, antecedent: FuzzyObject, consequence: FuzzySet):
+    def __init__(self, antecedent: FuzzyPredicate, consequence: FuzzySet):
         self.antecedent = antecedent
         self.consequence = consequence
 
@@ -54,10 +68,24 @@ class FuzzySystem:
             var.fuzzy_system = self
         self.output_variable.fuzzy_system = self
 
-    def add_rule(self, antecedent: FuzzyObject, consequence: FuzzySet):
+    def add_rule(self, antecedent: FuzzyPredicate, consequence: FuzzySet):
         if consequence.domain != self.output_variable.name:
             raise ValueError(f'Variable <{consequence.domain}> is not an output varaible')
         self.rules.append(FuzzyRule(antecedent, consequence))
+
+    def mamdani(self, *values):
+        vector = {var.name: value for var, value in zip(self.input_variables, values)}
+        agregt = FuzzyMax(*(FuzzyMinWith(rule.antecedent(**vector), rule.consequence.member_function)
+                for rule in self.rules))
+
+        return FuzzySet(self.output_variable.name, "Mamdani", agregt, self)
+
+    def larsen(self, *values):
+        vector = {var.name: value for var, value in zip(self.input_variables, values)}
+        agregt = FuzzyMax(*(FuzzyProductWith(rule.antecedent(**vector), rule.consequence.member_function)
+                for rule in self.rules))
+        
+        return FuzzySet(self.output_variable.name, "Larsen", agregt, self)
 
     def __str__(self):
         return f'Input:\n' + '\n'.join(f'  {var}' for var in self.input_variables) +\

@@ -1,4 +1,4 @@
-class FuzzyObject:
+class FuzzyPredicate:
     def __call__(self, *args, **kwargs):
         pass
 
@@ -9,10 +9,10 @@ class FuzzyObject:
         return FuzzyOr(self, other)
 
     def __invert__(self):
-        return FuzzyComplement(self)
+        return FuzzyNegation(self)
 
-class FuzzyAnd(FuzzyObject):
-    def __init__(self, left: FuzzyObject, right: FuzzyObject):
+class FuzzyAnd(FuzzyPredicate):
+    def __init__(self, left: FuzzyPredicate, right: FuzzyPredicate):
         self.left = left
         self.right = right
 
@@ -22,8 +22,8 @@ class FuzzyAnd(FuzzyObject):
     def __str__(self):
         return f'({self.left}) and ({self.right})'
 
-class FuzzyOr(FuzzyObject):
-    def __init__(self, left: FuzzyObject, right: FuzzyObject):
+class FuzzyOr(FuzzyPredicate):
+    def __init__(self, left: FuzzyPredicate, right: FuzzyPredicate):
         self.left = left
         self.right = right
 
@@ -33,8 +33,8 @@ class FuzzyOr(FuzzyObject):
     def __str__(self):
         return f'({self.left}) or ({self.right})'
 
-class FuzzyComplement(FuzzyObject):
-    def __init__(self, object: FuzzyObject):
+class FuzzyNegation(FuzzyPredicate):
+    def __init__(self, object: FuzzyPredicate):
         self.object = object
 
     def __call__(self, *args, **kwargs):
