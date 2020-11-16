@@ -12,13 +12,13 @@ propina = LinguisticVariable('Propina',
                                 promedio=FuzzyTriangular(0, 5, 10),
                                 generosa=FuzzyTriangular(6, 10, 11))
 
-SistemaPropina = FuzzySystem(servicio, comida, propina)
+SistemaPropina = FuzzySystem(input=(servicio, comida), output=(propina,))
 
-propina.poca     <<= servicio.pobre | comida.rancia  
-propina.promedio <<= servicio.bueno & ~ comida.rancia 
-propina.generosa <<= servicio.excelente | comida.deliciosa
+SistemaPropina %= servicio.pobre | comida.rancia, propina.poca  
+SistemaPropina %= servicio.bueno & ~ comida.rancia, propina.promedio 
+SistemaPropina %= servicio.excelente | comida.deliciosa, propina.generosa
 
 print(SistemaPropina)
 
-SistemaPropina.mamdani(3, 8).plot((-1, 11))
-SistemaPropina.larsen(3, 8).plot((-1, 11))
+SistemaPropina.mamdani(3, 8)[0].plot((-1, 11))
+SistemaPropina.larsen(3, 8)[0].plot((-1, 11))

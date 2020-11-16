@@ -14,7 +14,7 @@ class FuzzyTriangular(FuzzyTrapezoidal):
     def __init__(self, a, b, c):
         super().__init__(a, b, b, c)
 
-FuzzyMin = lambda *fs: lambda *args, **kwargs: min(f(*args, **kwargs) for f in fs)
-FuzzyMax = lambda *fs: lambda *args, **kwargs: max(f(*args, **kwargs) for f in fs)
+FuzzyMin = lambda *fs: lambda *args, **kwargs: min((f(*args, **kwargs) for f in fs), default=0)
+FuzzyMax = lambda *fs: lambda *args, **kwargs: max((f(*args, **kwargs) for f in fs), default=0)
 FuzzyMinWith = lambda v, f: lambda *args, **kwargs: min(f(*args, **kwargs), v)
 FuzzyProductWith = lambda v, f: lambda *args, **kwargs: v * f(*args, **kwargs)
