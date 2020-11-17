@@ -8,23 +8,58 @@ class FuzzySet(FuzzyPredicate):
         self.degree = degree
         self.member_function = member_function
 
+    def mom(self, universe):
+        maxu, maxvs = 0, []
+        for v in universe:
+            u = self.member_function(v)
+            if u > maxu:
+                maxvs = [v]
+                maxu = u
+            elif u == maxu:
+                maxvs.append(v)
+        return sum(maxvs)/len(maxvs)
+
+    def coa(self, universe):
+        values = list(universe)
+        num, den = 0, 0
+        for v in values:
+            u = self.member_function(v)
+            num += u * v
+            den += u
+        return num/den if den else (values[0] + values[-1])/2
+
+    def boa(self, universe):
+        values = list(universe)
+        images = [self.member_function(v) for v in values]
+        l, r = 0, len(values) - 1
+        for _ in range(15):
+            m = (l + r)//2
+            lsum = sum(images[0:m])
+            rsum = sum(images[m:-1])
+            l, r = (l, m) if lsum >= rsum else (m, r)
+        return values[r]
+            
+    def plot(self, universe):
+        xs = list(universe)
+        ys = [self.member_function(x) for x in xs]
+        mom, coa, boa = self.mom(xs), self.coa(xs), self.boa(xs)
+        ymom, ycoa, yboa = (self.member_function(x) for x in [mom, coa, boa])
+        pyplot.xlabel(self.domain)
+        pyplot.ylabel(self.degree)
+        pyplot.axis([xs[0], xs[-1], 0, 1])
+        pyplot.plot(xs, ys, 'b', label='Member Function') 
+        pyplot.plot([mom], [ymom], 'ro', label=f'MOM = {round(mom,2)}')
+        pyplot.plot([coa], [ycoa], 'gs', label=f'COA = {round(coa,2)}') 
+        pyplot.plot([boa], [yboa], 'y^', label=f'BOA = {round(boa,2)}')
+        pyplot.legend()
+        pyplot.show()
+    
     def __call__(self, *args, **values):
         return self.member_function(values[self.domain])
 
     def __str__(self):
         return f'{self.domain} is {self.degree}'
 
-    def plot(self, interval=(0, 1), points=1000):
-        a, b = interval
-        step = (b - a)/points
-        pyplot.figure()
-        xs = [a + x * step for x in range(points + 1)]
-        ys = [self.member_function(x) for x in xs]
-        pyplot.xlabel(self.domain)
-        pyplot.ylabel(self.degree)
-        pyplot.axis([a, b, 0, 1])
-        pyplot.plot(xs, ys)
-        pyplot.show()
 
 class LinguisticVariable:
     def __init__(self, name: str, **categories):
