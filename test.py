@@ -1,10 +1,9 @@
 from fuzzy import FuzzyTrapezoidal, FuzzyTriangular, FuzzySigmoidal, FuzzySigmoidal2, FuzzyBell,\
                     LinguisticVariable, FuzzySystem
 
-def interval(a, b, points=1000):
+def interval(a, b, points=10000):
     step = (b - a)/points
     return [a + i * step for i in range(points)] + [b]
-
 
 servicio = LinguisticVariable('Servicio',
                                 pobre=FuzzySigmoidal2(0, 4),
@@ -38,5 +37,5 @@ print(SistemaPropina)
 mp, = SistemaPropina.mamdani(3, 8)
 lp, = SistemaPropina.larsen(3, 8)
 
-mp.plot(interval(0, 25, 25))
-lp.plot(interval(0, 25, 25))
+mp.plot(interval(0, 25))
+lp.plot(interval(0, 25))
