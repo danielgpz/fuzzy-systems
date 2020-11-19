@@ -55,7 +55,10 @@ class FuzzySet(FuzzyPredicate):
         pyplot.show()
     
     def __call__(self, *args, **values):
-        return self.member_function(values[self.domain])
+        try:
+            return self.member_function(values[self.domain])
+        except KeyError:
+            return self.member_function(args[0])
 
     def __str__(self):
         return f'{self.domain} is {self.degree}'
