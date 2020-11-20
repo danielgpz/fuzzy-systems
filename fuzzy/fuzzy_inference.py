@@ -31,28 +31,34 @@ class FuzzySet(FuzzyPredicate):
     def boa(self, universe):
         values = list(universe)
         images = [self.member_function(v) for v in values]
+        segments = [(vj-vi)*(ui+uj)/2 for vi, vj, ui, uj in zip(values[:-1], values[1:], images[:-1], images[1:])]
         l, r = 0, len(values) - 1
         while l < r:
             m = (l + r) // 2
-            lsum = sum(images[0:m])
-            rsum = sum(images[m:-1])
+            lsum = sum(segments[0:m-1])
+            rsum = sum(segments[m-1:-1])
             l, r = (l, m) if lsum >= rsum else (m + 1, r)
         return values[l]
             
-    def plot(self, universe):
+    def plot(self, universe, defuzzy=True, save_path=None):
         xs = list(universe)
         ys = [self.member_function(x) for x in xs]
-        mom, coa, boa = self.mom(xs), self.coa(xs), self.boa(xs)
-        ymom, ycoa, yboa = (self.member_function(x) for x in [mom, coa, boa])
+        pyplot.figure()
         pyplot.xlabel(self.domain)
         pyplot.ylabel(self.degree)
-        pyplot.axis([xs[0], xs[-1], 0, 1])
-        pyplot.plot(xs, ys, 'b', label='Member Function') 
-        pyplot.plot([mom], [ymom], 'ro', label=f'MOM = {round(mom,2)}')
-        pyplot.plot([coa], [ycoa/2], 'gs', label=f'COA = {round(coa,2)}') 
-        pyplot.plot([boa, boa], [0, yboa], 'y', label=f'BOA = {round(boa,2)}')
+        pyplot.plot(xs, ys, 'b', label='Member Function')
+        if defuzzy: 
+            mom, coa, boa = self.mom(xs), self.coa(xs), self.boa(xs)
+            ymom, ycoa, yboa = (self.member_function(x) for x in [mom, coa, boa])
+            pyplot.axis([xs[0], xs[-1], 0, 1])
+            pyplot.plot([mom], [ymom], 'ro', label=f'MOM = {round(mom,2)}')
+            pyplot.plot([coa], [ycoa/2], 'gs', label=f'COA = {round(coa,2)}') 
+            pyplot.plot([boa, boa], [0, yboa], 'y', label=f'BOA = {round(boa,2)}')
         pyplot.legend()
-        pyplot.show()
+        if save_path:
+            pyplot.savefig(save_path)
+        else:
+            pyplot.show()
     
     def __call__(self, *args, **values):
         try:
