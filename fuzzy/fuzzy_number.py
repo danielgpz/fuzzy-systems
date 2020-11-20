@@ -41,6 +41,23 @@ class FuzzySigmoidal2(FuzzySigmoidal):
     def __call__(self, value):
         return 1 - super().__call__(value)
 
+class FuzzySigmoidal3:
+    def __init__(self, a, b, c, d):
+        self.b, self.c = b, c
+        self.left = FuzzySigmoidal(a, b)
+        self.right = FuzzySigmoidal2(c, d)
+
+    def __call__(self, value):
+        if value <= self.b:
+            return self.left(value)
+        if value >= self.c:
+            return self.right(value)
+        return 1
+
+class FuzzySigmoidal4(FuzzySigmoidal3):
+    def __call__(self, value):
+        return 1 - super().__call__(value)
+
 FuzzyMin = lambda *fs: lambda *args, **kwargs: min((f(*args, **kwargs) for f in fs), default=0)
 FuzzyMax = lambda *fs: lambda *args, **kwargs: max((f(*args, **kwargs) for f in fs), default=0)
 FuzzyMinWith = lambda v, f: lambda *args, **kwargs: min(f(*args, **kwargs), v)
